@@ -29,6 +29,7 @@ IMG_DIR = 'images'
 RSZ_DIR = 'images_resize'
 # EXIFデータID
 EXIF_MODEL = 272
+EXIF_ORIENTATION = 274
 EXIF_DATETIME = 306
 
 
@@ -82,9 +83,9 @@ def main():
 ###############################
 ########## FUNCTIONS ##########
 ###############################
+# resize
 def resize(file, indir, outdir):
     """ 画像のリサイズ
-        (微妙だけど)EXIFデータを返す
 
         Parameters
         ----------
@@ -98,10 +99,16 @@ def resize(file, indir, outdir):
     """
     img = Image.open(indir + "/" + file)
     r = MAX_RESIZE_LEN / max(img.width, img.height)
+    # resize
     img_rsz = img.resize((int(img.width*r), int(img.height*r)), Image.LANCZOS)
+    # orientation
+    orientation = img._getexif()[EXIF_ORIENTATION]
+    img_rsz = convert_image[orientation](img_rsz)
+    # save
     img_rsz.save(outdir + "/" + file)
 
 
+# get_exif
 def get_exif(filepath):
     """ EIXFデータの取得
 
@@ -114,6 +121,28 @@ def get_exif(filepath):
         * exif : 画像のEXIFデータ
     """
     return Image.open(filepath)._getexif()
+
+
+# rotate
+convert_image = {
+    # そのまま
+    1: lambda img: img,
+    # 左右反転
+    2: lambda img: img.transpose(Image.FLIP_LEFT_RIGHT),
+    # 180度回転
+    3: lambda img: img.transpose(Image.ROTATE_180),
+    # 上下反転
+    4: lambda img: img.transpose(Image.FLIP_TOP_BOTTOM),
+    # 左右反転＆反時計回りに90度回転
+    5: lambda img: img.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.ROTATE_90),
+    # 反時計回りに270度回転
+    6: lambda img: img.transpose(Image.ROTATE_270),
+    # 左右反転＆反時計回りに270度回転
+    7: lambda img: img.transpose(Image.FLIP_LEFT_RIGHT).transpose(Image.ROTATE_270), 
+    # 反時計回りに90度回転
+    8: lambda img: img.transpose(Image.ROTATE_90),
+}
+
 
 
 ###########################
