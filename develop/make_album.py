@@ -23,10 +23,16 @@ import album_html as html       # HTMLコード定数
 IMG_EXTS = ['.JPG', '.jpg', '.PNG', '.png']
 # リサイズ後画像サイズの最大辺長
 MAX_RESIZE_LEN = 980
+# サムネイル用画像サイズ
+THUMB_LEN = 500
 # 画像保存ディレクトリ名
 IMG_DIR = 'images'
 # リサイズ画像出力先ディレクトリ名
 RSZ_DIR = 'images_resize'
+# サムネ用画像出力先ディレクトリ名
+THUMB_DIR = 'images_thumb'
+# 360viewerページ出力先ディレクトリ名
+VIEWER360_DIR = 'viewer360'
 # EXIFデータID
 EXIF_MODEL = 272
 EXIF_ORIENTATION = 274
@@ -43,35 +49,64 @@ def main():
     # 指定した拡張子(後ろから4文字)以外除外
     files = [f for f in files if f[-4:] in IMG_EXTS]
 
-    ### 画像のリサイズ
-    # リサイズ画像出力先ディレクトリの存在確認
+    ### 画像の読み込みと処理
+    ## 出力先ディレクトリの存在確認
+    # リサイズ
     if not os.path.exists(RSZ_DIR):
         os.mkdir(RSZ_DIR)
+    # サムネイル
+    if not os.path.exists(THUMB_DIR):
+        os.mkdir(THUMB_DIR)
+    # 360viewer
+    if not os.path.exists(VIEWER360_DIR):
+        os.mkdir(VIEWER360_DIR)
+    ## 出力先ディレクトリのファイル取得
     rfiles = os.listdir(RSZ_DIR)
-    # リサイズ処理
-    target = [f for f in files if f not in rfiles] # リサイズ済の除外
-    pbar = tqdm(target)
+    tfiles = os.listdir(THUMB_DIR)
+    vfiles = os.listdir(VIEWER360_DIR)
+    ## 画像処理
+    models, datetimes = [], []
+    pbar = tqdm(files)
     for file in pbar:
-        pbar.set_description("resizing")
-        resize(file, IMG_DIR, RSZ_DIR)
-
-    ### EXIF情報を利用
-    # モデル, 撮影時刻の取得
-    models, datetimes = np.array([]), np.array([])
-    for file in files:
+        pbar.set_description("image processing")
+        # 読込
+        img = Image.open(IMG_DIR + "/" + file)
+        # resize
+        if file not in rfiles: # リサイズ済ならスルー
+            resize(img, RSZ_DIR + "/" + file)
+        # thumbnail
+        if file not in tfiles: # サムネイル用画像作成済ならスルー
+            thumbnail(img, THUMB_DIR + "/" + file)
+        # EXIF情報の読込(model, datetime)
         exif = get_exif(IMG_DIR + "/" + file)
         models = np.append(models, exif[EXIF_MODEL])
         datetimes = np.append(datetimes, datetime.strptime(exif[EXIF_DATETIME], '%Y:%m:%d %H:%M:%S'))
+
     # 撮影時刻によるソート(降順)
     x = np.argsort(datetimes)[::-1]
     models, datetimes, files = models[x], datetimes[x], np.array(files)[x]
 
     ### HTMLコード生成
-    items = ""
+    blocks, items, dt_prev = "", "", None
     for file, dt, model in zip(files, datetimes, models):
         dt_str = dt.strftime('%Y / %m / %d')
-        items += html.HTML_ITEM % (RSZ_DIR, file, RSZ_DIR, file, dt_str)
-    html_code = html.HTML % (html.HTML_HEAD + html.HTML_BODY % items)
+        # 日付ブロック分け
+        if (dt_prev is not None) and (dt_prev != dt_str):
+            blocks += html.HTML_BLOCK % (dt_prev, items)
+            items = ""
+        dt_prev = dt_str
+        ## 360viewer?
+        eye = "" # 360viewew
+        if is_360img(model):
+            # 360viewer作成
+            if file not in vfiles:
+                make_360viewer_page(file, "../"+IMG_DIR, VIEWER360_DIR, file)
+            # 360viewer link
+            eye = html.HTML_360VIEWER % (VIEWER360_DIR, file + ".html")
+        # list追加
+        items += html.HTML_ITEM % (RSZ_DIR, file, THUMB_DIR, file, IMG_DIR, file, eye)
+    blocks += html.HTML_BLOCK % (dt_str, items)
+    html_code = html.HTML % (html.HTML_HEAD + html.HTML_BODY % blocks)
 
     ### ファイル作成 & 書き込み
     fd = open('index.html', 'w')
@@ -84,28 +119,62 @@ def main():
 ########## FUNCTIONS ##########
 ###############################
 # resize
-def resize(file, indir, outdir):
+def resize(img, outname, LEN=MAX_RESIZE_LEN, a=0):
     """ 画像のリサイズ
 
         Parameters
         ----------
-        * file : 画像ファイル名
-        * indir : リサイズ元画像があるディレクトリへのパス
-        * outdir : リサイズ後画像の出力先ディレクトリへのパス
+        * img : 画像データ(PIL.Image)
+        * outname : リサイズ後画像の出力名
 
         Returns
         -------
-        * void
+        * リサイズ後の画像(PIL.Image)
     """
-    img = Image.open(indir + "/" + file)
-    r = MAX_RESIZE_LEN / max(img.width, img.height)
+    if a==0:
+        r = LEN / max(img.width, img.height)
+    else:
+        r = LEN / min(img.width, img.height)
     # resize
     img_rsz = img.resize((int(img.width*r), int(img.height*r)), Image.LANCZOS)
     # orientation
     orientation = img._getexif()[EXIF_ORIENTATION]
     img_rsz = convert_image[orientation](img_rsz)
     # save
-    img_rsz.save(outdir + "/" + file)
+    if outname is not None:
+        img_rsz.save(outname)
+    return img_rsz
+
+
+# thumbnail
+def thumbnail(img, outname, LEN=THUMB_LEN):
+    """ サムネイル用画像の作成(正方形)
+
+        Parameters
+        ----------
+        * img : 画像データ(PIL.Image)
+        * outname : サムネイル用画像の出力名
+
+        Returns
+        -------
+        * サムネイル用画像(PIL.Image)
+    """
+    # resize
+    rsz = resize(img, None, LEN=THUMB_LEN, a=1)
+    # 正方形化
+    if rsz.width > rsz.height:
+        s = int(rsz.width//2 - LEN//2)
+        box = (s, 0, s+LEN, rsz.height)
+    elif rsz.width < rsz.height:
+        s = int(rsz.height//2 - LEN//2)
+        box = (0, s, rsz.width, s+LEN)
+    else:
+        box = (0, 0, rsz.width, rsz.height)
+    thumb = rsz.crop(box)
+    # save
+    if outname is not None:
+        thumb.save(outname)
+    return thumb
 
 
 # get_exif
@@ -143,6 +212,41 @@ convert_image = {
     8: lambda img: img.transpose(Image.ROTATE_90),
 }
 
+
+# is 360img
+def is_360img(model):
+    """ 画像(EXIF)情報から360度画像かどうかを判定
+        * modelにTHETAが入っていたら(THETAで取られた画像であれば)...
+
+        Parameters
+        ----------
+        * model : 撮影機材(モデル)
+
+        Returns
+        ------
+        * is360img : 360度画像
+    """
+    return "THETA" in model
+
+
+# make 360viewer page
+def make_360viewer_page(title, indir, outdir, file):
+    """ 360viewer pageの作成
+
+        Parameters
+        ----------
+        * title : page title
+        * indir : 表示画像保存先ディレクトリ
+        * outdir : page出力先ディレクトリ
+        * file : 表示画像名
+
+        Returns
+        -------
+        * void
+    """
+    fd = open(outdir + "/" + title + ".html", 'w')
+    fd.write(html.HTML_360VIEWER_PAGE % (title, indir, file))
+    fd.close()
 
 
 ###########################

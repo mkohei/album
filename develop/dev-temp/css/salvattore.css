@@ -4,10 +4,13 @@
    More info at http://salvattore.com
  */
 
+
 /* Base styles */
+
 .column {
     float: left;
 }
+
 @media screen and (max-width: 480px) {
     .column {
         float: none;
@@ -15,22 +18,26 @@
         clear: both;
     }
 }
+
 .size-1of4 {
     width: 25%;
 }
+
 .size-1of3 {
     width: 33.333%;
 }
+
 .size-1of2 {
     width: 50%;
 }
-
 
 #fh5co-board[data-columns]::before {
     content: '4 .column.size-1of4';
 }
 
+
 /* Configurate salvattore with media queries */
+
 @media screen and (max-width: 450px) {
     #fh5co-board[data-columns]::before {
         content: '1 .column';
@@ -54,4 +61,3 @@
         content: '4 .column.size-1of4';
     }
 }
-

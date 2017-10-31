@@ -5,8 +5,12 @@
 ###############################
 """
 * HTML % (HTML_HEAD + HTML_BODY)
-* HTML_BODY % HTML_ITEM(s)
-* HTML_ITEM % (dir, img, dir, img, comment)
+* HTML_BODY % HTML_BLOCK(s)
+* HTML_BLOCK % (date, HTML_ITEM(s))
+* HTML_ITEM % (dir[resize], img, dir[thumbnail], img, dir[origin], img, HTML_360VIEWER or blank)
+* HTML_360VIEWER % (dir[360view], file.html)
+
+* HTML_360VIEWER_PAGE % (title, dir[origin], file)
 """
 
 HTML = """
@@ -90,7 +94,7 @@ HTML_BODY = """
 
     <div id="fh5co-offcanvass">
         <a href="#" class="fh5co-offcanvass-close js-fh5co-offcanvass-close">Menu <i class="icon-cross"></i> </a>
-        <h1 class="fh5co-logo"><a class="navbar-brand" href="index.html">Hydrogen</a></h1>
+        <h1 class="fh5co-logo"><a class="navbar-brand" href="index.html">Krlab Album</a></h1>
         <ul>
             <li class="active"><a href="index.html">Home</a></li>
             <li><a href="about.html">About</a></li>
@@ -111,26 +115,15 @@ HTML_BODY = """
             <div class="row">
                 <div class="col-md-12">
                     <a href="#" class="fh5co-menu-btn js-fh5co-menu-btn">Menu <i class="icon-menu"></i></a>
-                    <a class="navbar-brand" href="index.html">Hydrogen</a>
+                    <a class="navbar-brand" href="index.html">KRLAB*ALBUM</a>
                 </div>
             </div>
         </div>
     </header>
     <!-- END .header -->
 
-
     <div id="fh5co-main">
-        <div class="container">
-
-            <div class="row">
-
-                <div id="fh5co-board" data-columns>
-
-                %s
-
-                </div>
-            </div>
-        </div>
+        %s
     </div>
 
     <footer id="fh5co-footer">
@@ -173,6 +166,23 @@ HTML_BODY = """
 </body>
 """
 
+HTML_BLOCK = """
+        <br>
+        <div align="center">%s</div>
+        <div class="container">
+
+            <div class="row">
+
+                <div id="fh5co-board" data-columns>
+
+                %s
+
+                </div>
+            </div>
+        </div>
+"""
+
+
 HTML_ITEM = """
                     <div class="item">
                         <div class="animate-box">
@@ -180,4 +190,38 @@ HTML_ITEM = """
                             <div class="fh5co-desc">%s</div>
                         </div>
                     </div>
+"""
+
+HTML_ITEM = """
+                    <div class="item">
+                        <div class="animate-box">
+                            <a href="%s/%s" class="image-popup fh5co-board-img"><img src="%s/%s" alt="krlab album"></a>
+                            <span>
+                                <a href="%s/%s" class="icon-download " download></a>
+                                %s
+                            </span>
+                        </div>
+                    </div>
+"""
+
+
+HTML_360VIEWER = """
+                                <a href="%s/%s" class="icon-eye "></a>
+"""
+
+HTML_360VIEWER_PAGE = """
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>%s</title>
+<meta name="description" content="panorama view">
+<script src="https://aframe.io/releases/0.4.0/aframe.min.js"></script>
+</head>
+<body>
+<a-scene>
+<a-sky src="%s/%s" rotation="0 0 0"></a-sky>
+</a-scene>
+</body>
+</html>
 """

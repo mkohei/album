@@ -2,35 +2,29 @@
 
 画像群と設定ファイルからアルバムページを自動生成するスクリプト
 
-## memo
-
-### jQuery
-
-* rowGrid.js  
-    Googleの画像検索の表示のように、行方向を揃える
-* Slidebars  
-    Menuみたいなやつ
-* PhotoSwipe  
-    JSで画像ギャラリーを実装
-* LazeeMenu  
-    追加のサイドバーメニュー
-
-
 ## TODO(構成)
 
 ### WEBページ
 
-* [ ] コンスタントだけを別ファイルに作りたい(templateが変わっても使えるため？)
+* [x] コンスタントだけを別ファイルに作りたい(templateが変わっても使えるため？)
 * [ ] JS, CSS等のファイル作成は，コピー
 * [ ] サイドメニューから他年度，krlabHP, KUTHP
 * [ ] SNS (youtube)
+* [ ] 日付へのナビ
 
 ### 画像
 
-* [ ] EXIFデータから自動日付割当
+* [x] EXIFデータから自動日付割当
 * [ ] 画像コメント(title?)
-* [ ] EXIFデータのmodel(?)から全天球画像判定(?)
+* [ ] 画像コメント, title等を直接書くようにしたくない
+* [x] EXIFデータのmodel(?)から全天球画像判定(?)
 * [ ] goodボタンやコメント機能, download数
+* [x] download
+* [x] 360viewer
+
+### 内部仕様
+
+* [ ] downloadや360viewerページ名用にIDをつける(date + orderとか, img名はそのまま？)
 
 ### 設定方法
 
