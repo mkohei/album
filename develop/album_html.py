@@ -94,12 +94,13 @@ HTML_BODY = """
 
     <div id="fh5co-offcanvass">
         <a href="#" class="fh5co-offcanvass-close js-fh5co-offcanvass-close">Menu <i class="icon-cross"></i> </a>
-        <h1 class="fh5co-logo"><a class="navbar-brand" href="index.html">Krlab Album</a></h1>
+        <h1 class="fh5co-logo"><a class="navbar-brand" href="index.html">KRLAB</a></h1>
         <ul>
-            <li class="active"><a href="index.html">Home</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="pricing.html">Pricing</a></li>
-            <li><a href="contact.html">Contact</a></li>
+            <li><a href="http://krlab.info.kochi-tech.ac.jp/">Home</a></li>
+            <li class="active"><a href="index.html">Album</a></li>
+            <li><a href="https://www.kochi-tech.ac.jp/">KUT</a></li>
+            <li><a href="http://www.info.kochi-tech.ac.jp/">KUT Information</a></li>
+            <li><a href="http://krlab.info.kochi-tech.ac.jp/~kurihara/">Toru Kurihara</a></li>
         </ul>
         <h3 class="fh5co-lead">Connect with us</h3>
         <p class="fh5co-social-icons">
