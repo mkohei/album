@@ -7,12 +7,54 @@
 * HTML % (HTML_HEAD + HTML_BODY)
 * HTML_BODY % HTML_BLOCK(s)
 * HTML_BLOCK % (date, HTML_ITEM(s))
-* HTML_ITEM % (dir[resize], img, dir[thumbnail], img, dir[origin], img, HTML_360VIEWER or blank)
+* HTML_ITEM % (dir[resize], img, dir[thumbnail], img, dir[origin], img, download_name, HTML_360VIEWER or blank)
 * HTML_360VIEWER % (dir[360view], file.html)
 
 * HTML_360VIEWER_PAGE % (title, dir[origin], file)
 """
 
+###############################
+########## VARIABLES ##########
+###############################
+date_list = []
+items_list = []
+
+###############################
+########## FUNCTIONS ##########
+###############################
+def clear():
+    """ 状態初期化 """
+    count = 0
+    block_list = []
+
+def add_block(date):
+    """ ブロックの追加 """
+    date_list.append(date)
+    items_list.append("")
+
+def add_item(thumb_dir, view_dir, download_dir, view360_dir, file):
+    """ アイテムの追加 """
+    a = ""
+    if view360_dir is not None:
+        a = HTML_360VIEWER % (view360_dir, file)
+
+def get():
+    """ カスタムしたHTMLコードの取得 """
+    ...
+
+def viewer360page(title, img_dir, file):
+    """ 360viewer pageの作成 """
+    ...
+
+def show():
+    print(count, date_list, items_list)
+
+
+
+
+###############################
+########## CONSTANTS ##########
+###############################
 HTML = """
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -198,7 +240,7 @@ HTML_ITEM = """
                         <div class="animate-box">
                             <a href="%s/%s" class="image-popup fh5co-board-img"><img src="%s/%s" alt="krlab album"></a>
                             <span>
-                                <a href="%s/%s" class="icon-download " download></a>
+                                <a href="%s/%s" class="icon-download " download="%s"></a>
                                 %s
                             </span>
                         </div>

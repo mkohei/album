@@ -24,7 +24,7 @@ IMG_EXTS = ['.JPG', '.jpg', '.PNG', '.png']
 # リサイズ後画像サイズの最大辺長
 MAX_RESIZE_LEN = 980
 # サムネイル用画像サイズ
-THUMB_LEN = 500
+THUMB_LEN = 200
 # 画像保存ディレクトリ名
 IMG_DIR = 'images'
 # リサイズ画像出力先ディレクトリ名
@@ -87,24 +87,27 @@ def main():
     models, datetimes, files = models[x], datetimes[x], np.array(files)[x]
 
     ### HTMLコード生成
-    blocks, items, dt_prev = "", "", None
+    blocks, items, dt_prev, cnt = "", "", None, 0
     for file, dt, model in zip(files, datetimes, models):
         dt_str = dt.strftime('%Y / %m / %d')
+        img_id = get_id(dt, cnt)
+        cnt += 1
         # 日付ブロック分け
         if (dt_prev is not None) and (dt_prev != dt_str):
             blocks += html.HTML_BLOCK % (dt_prev, items)
             items = ""
+            cnt = 0
         dt_prev = dt_str
         ## 360viewer?
         eye = "" # 360viewew
         if is_360img(model):
             # 360viewer作成
             if file not in vfiles:
-                make_360viewer_page(file, "../"+IMG_DIR, VIEWER360_DIR, file)
+                make_360viewer_page(img_id, "../"+IMG_DIR, VIEWER360_DIR, file)
             # 360viewer link
-            eye = html.HTML_360VIEWER % (VIEWER360_DIR, file + ".html")
+            eye = html.HTML_360VIEWER % (VIEWER360_DIR, img_id + ".html")
         # list追加
-        items += html.HTML_ITEM % (RSZ_DIR, file, THUMB_DIR, file, IMG_DIR, file, eye)
+        items += html.HTML_ITEM % (RSZ_DIR, file, THUMB_DIR, file, IMG_DIR, file, img_id, eye)
     blocks += html.HTML_BLOCK % (dt_str, items)
     html_code = html.HTML % (html.HTML_HEAD + html.HTML_BODY % blocks)
 
@@ -247,6 +250,11 @@ def make_360viewer_page(title, indir, outdir, file):
     fd = open(outdir + "/" + title + ".html", 'w')
     fd.write(html.HTML_360VIEWER_PAGE % (title, indir, file))
     fd.close()
+
+
+# id
+def get_id(datetime, cnt):
+    return datetime.strftime('%Y%m%d') + '%03d' % cnt
 
 
 ###########################
