@@ -93,23 +93,19 @@ def main():
         img_id = get_id(dt, cnt)
         cnt += 1
         # 日付ブロック分け
-        if (dt_prev is not None) and (dt_prev != dt_str):
-            blocks += html.HTML_BLOCK % (dt_prev, items)
-            items = ""
+        if dt_prev != dt_str:
+            html.add_block(dt_str)
             cnt = 0
         dt_prev = dt_str
-        ## 360viewer?
-        eye = "" # 360viewew
+        # 360view
+        view360_dir = None
         if is_360img(model):
-            # 360viewer作成
-            if file not in vfiles:
+            view360_dir = VIEWER360_DIR
+            if file  not in vfiles:
                 make_360viewer_page(img_id, "../"+IMG_DIR, VIEWER360_DIR, file)
-            # 360viewer link
-            eye = html.HTML_360VIEWER % (VIEWER360_DIR, img_id + ".html")
-        # list追加
-        items += html.HTML_ITEM % (RSZ_DIR, file, THUMB_DIR, file, IMG_DIR, file, img_id, eye)
-    blocks += html.HTML_BLOCK % (dt_str, items)
-    html_code = html.HTML % (html.HTML_HEAD + html.HTML_BODY % blocks)
+        # add item
+        html.add_item(THUMB_DIR, RSZ_DIR, IMG_DIR, view360_dir, file, img_id)
+    html_code = html.get()
 
     ### ファイル作成 & 書き込み
     fd = open('index.html', 'w')

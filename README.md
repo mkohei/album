@@ -24,7 +24,7 @@
 
 ### 内部仕様
 
-* [ ] downloadや360viewerページ名用にIDをつける(date + orderとか, img名はそのまま？)
+* [x] downloadや360viewerページ名用にIDをつける(date + orderとか, img名はそのまま？)
 * [ ] HTMLコード作成の関数化
 
 ### 設定方法

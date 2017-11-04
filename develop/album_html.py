@@ -32,23 +32,23 @@ def add_block(date):
     date_list.append(date)
     items_list.append("")
 
-def add_item(thumb_dir, view_dir, download_dir, view360_dir, file):
+def add_item(thumb_dir, view_dir, download_dir, view360_dir, file, img_id):
     """ アイテムの追加 """
     a = ""
     if view360_dir is not None:
         a = HTML_360VIEWER % (view360_dir, file)
+    items_list[-1] += HTML_ITEM % (view_dir, file, thumb_dir, file, download_dir, file, img_id, a)
 
 def get():
     """ カスタムしたHTMLコードの取得 """
-    ...
+    blocks = ""
+    for date, items in zip(date_list, items_list):
+        blocks += HTML_BLOCK % (date, items)
+    return HTML % (HTML_HEAD + HTML_BODY % blocks)
 
 def viewer360page(title, img_dir, file):
     """ 360viewer pageの作成 """
     ...
-
-def show():
-    print(count, date_list, items_list)
-
 
 
 
