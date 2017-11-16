@@ -15,6 +15,8 @@ from datetime import datetime   # 日付操作
 from tqdm import tqdm           # 進捗バー
 import numpy as np              # argsort
 import album_html as html       # HTMLコード定数
+import sys
+import shutil
 
 ###############################
 ########## CONSTANTS ##########
@@ -24,7 +26,7 @@ IMG_EXTS = ['.JPG', '.jpg', '.PNG', '.png']
 # リサイズ後画像サイズの最大辺長
 MAX_RESIZE_LEN = 980
 # サムネイル用画像サイズ
-THUMB_LEN = 200
+THUMB_LEN = 300
 # 画像保存ディレクトリ名
 IMG_DIR = 'images'
 # リサイズ画像出力先ディレクトリ名
@@ -44,6 +46,19 @@ EXIF_DATETIME = 306
 ########## MAIN FUNCTION ##########
 ###################################
 def main():
+    ### 指定パスの取得
+    path = "."
+    if len(sys.argv) > 1:
+        if os.path.exists(sys.argv[1]):
+            path = sys.argv[1]
+    path += "/"
+
+    ### ディレクトリ更新
+    global IMG_DIR, RSZ_DIR, THUMB_DIR
+    IMG_DIR   = path + IMG_DIR
+    RSZ_DIR   = path + RSZ_DIR
+    THUMB_DIR = path + THUMB_DIR
+
     ### 画像ファイルパス取得
     files = os.listdir(IMG_DIR)
     # 指定した拡張子(後ろから4文字)以外除外
@@ -111,6 +126,9 @@ def main():
     fd = open('index.html', 'w')
     fd.write(html_code)
     fd.close()
+
+    ### tempファイルのコピー(css, js, etc...)
+    cp_temp(path)
 
 
 
@@ -251,6 +269,19 @@ def make_360viewer_page(title, indir, outdir, file):
 # id
 def get_id(datetime, cnt):
     return datetime.strftime('%Y%m%d') + '%03d' % cnt
+
+
+def cp_temp(_todir):
+    a = os.path.dirname(__file__)
+    if a == "":
+        a = "."
+    dirs = ["css", "fonts", 'js', "sass"]
+    for d in dirs:
+        _from = a + "/tmps/" + d
+        _to = _todir + d
+        if not os.path.exists(_to):
+            shutil.copytree(_from, _to)
+
 
 
 ###########################

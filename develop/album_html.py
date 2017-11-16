@@ -24,8 +24,11 @@ items_list = []
 ###############################
 def clear():
     """ 状態初期化 """
-    count = 0
-    block_list = []
+    date_list.clear()
+    items_list.clear()
+
+def set_title(newtitle):
+    title = newtitle
 
 def add_block(date):
     """ ブロックの追加 """
@@ -39,17 +42,12 @@ def add_item(thumb_dir, view_dir, download_dir, view360_dir, file, img_id):
         a = HTML_360VIEWER % (view360_dir, file)
     items_list[-1] += HTML_ITEM % (view_dir, file, thumb_dir, file, download_dir, file, img_id, a)
 
-def get():
+def get(title=""):
     """ カスタムしたHTMLコードの取得 """
     blocks = ""
     for date, items in zip(date_list, items_list):
         blocks += HTML_BLOCK % (date, items)
     return HTML % (HTML_HEAD + HTML_BODY % blocks)
-
-def viewer360page(title, img_dir, file):
-    """ 360viewer pageの作成 """
-    ...
-
 
 
 ###############################
@@ -158,7 +156,7 @@ HTML_BODY = """
             <div class="row">
                 <div class="col-md-12">
                     <a href="#" class="fh5co-menu-btn js-fh5co-menu-btn">Menu <i class="icon-menu"></i></a>
-                    <a class="navbar-brand" href="index.html">KRLAB*ALBUM</a>
+                    <a class="navbar-brand" href="index.html">KRLAB*ALBUM %s</a>
                 </div>
             </div>
         </div>
