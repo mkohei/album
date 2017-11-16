@@ -27,9 +27,6 @@ def clear():
     date_list.clear()
     items_list.clear()
 
-def set_title(newtitle):
-    title = newtitle
-
 def add_block(date):
     """ ブロックの追加 """
     date_list.append(date)
@@ -47,7 +44,7 @@ def get(title=""):
     blocks = ""
     for date, items in zip(date_list, items_list):
         blocks += HTML_BLOCK % (date, items)
-    return HTML % (HTML_HEAD + HTML_BODY % blocks)
+    return HTML % (HTML_HEAD + HTML_BODY % (title, blocks))
 
 
 ###############################
@@ -144,11 +141,11 @@ HTML_BODY = """
         </ul>
         <h3 class="fh5co-lead">Connect with us</h3>
         <p class="fh5co-social-icons">
-            <a href="#"><i class="icon-twitter"></i></a>
-            <a href="#"><i class="icon-facebook"></i></a>
-            <a href="#"><i class="icon-instagram"></i></a>
-            <a href="#"><i class="icon-dribbble"></i></a>
-            <a href="#"><i class="icon-youtube"></i></a>
+            <!--<a href="#"><i class="icon-twitter"></i></a>-->
+            <!--<a href="#"><i class="icon-facebook"></i></a>-->
+            <!--<a href="#"><i class="icon-instagram"></i></a>-->
+            <!--<a href="#"><i class="icon-dribbble"></i></a>-->
+            <a href="https://www.youtube.com/channel/UCUqgtPjpFJZr79306ndd9_g"><i class="icon-youtube"></i></a>
         </p>
     </div>
     <header id="fh5co-header" role="banner">
