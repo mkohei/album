@@ -5,46 +5,65 @@
 ###############################
 """
 * HTML % (HTML_HEAD + HTML_BODY)
-* HTML_BODY % HTML_BLOCK(s)
+* HTML_HEAD % title
+* HTML_BODY % (HTML_YEAR_ITEM(s), title, HTML_BLOCK(s))
+* HTML_YEAR_ITEM % (year, year)
 * HTML_BLOCK % (date, HTML_ITEM(s))
 * HTML_ITEM % (dir[resize], img, dir[thumbnail], img, dir[origin], img, download_name, HTML_360VIEWER or blank)
 * HTML_360VIEWER % (dir[360view], file.html)
 
 * HTML_360VIEWER_PAGE % (title, dir[origin], file)
+
+* HTML_INDEX_PAGE % (title, title, title)
 """
 
 ###############################
 ########## VARIABLES ##########
 ###############################
-date_list = []
-items_list = []
+year_list = {}
+
+
 
 ###############################
 ########## FUNCTIONS ##########
 ###############################
-def clear():
-    """ 状態初期化 """
-    date_list.clear()
-    items_list.clear()
+def add_year(year):
+    if year not in year_list:
+        year_list[year] = {}
 
-def add_block(date):
-    """ ブロックの追加 """
-    date_list.append(date)
-    items_list.append("")
+def add_block(year, date):
+    add_year(year)
+    if date not in year_list[year]:
+        year_list[year][date] = ""
 
-def add_item(thumb_dir, view_dir, download_dir, view360_dir, file, img_id):
-    """ アイテムの追加 """
+def add_item(year, date, thumb_dir, view_dir, download_dir, view360_dir, file, img_id):
+    add_block(year, date)
     a = ""
     if view360_dir is not None:
         a = HTML_360VIEWER % (view360_dir, file)
-    items_list[-1] += HTML_ITEM % (view_dir, file, thumb_dir, file, download_dir, file, img_id, a)
+    year_list[year][date] += HTML_ITEM % (view_dir, file, thumb_dir, file, download_dir, file, img_id, a)
 
-def get(title=""):
-    """ カスタムしたHTMLコードの取得 """
-    blocks = ""
-    for date, items in zip(date_list, items_list):
-        blocks += HTML_BLOCK % (date, items)
-    return HTML % (HTML_HEAD + HTML_BODY % (title, blocks))
+def get():
+    htmls = {}
+    for year, dates in year_list.items():
+        blocks = ""
+        # block
+        for date, items in dates.items():
+            blocks += HTML_BLOCK % (date, items)
+        # head
+        head = HTML_HEAD % year
+        # years
+        years = ""
+        for y in year_list.keys():
+            if y == year:
+                years += HTML_YEAR_ITEM_ACTIVE % (y, y)
+            else:
+                years += HTML_YEAR_ITEM % (y, y)
+        # body
+        body = HTML_BODY % (years, year, blocks)
+        htmls[year] = HTML % (head + body)
+    return htmls
+
 
 
 ###############################
@@ -58,7 +77,7 @@ HTML = """
 <!--[if gt IE 8]><!-->
 <html class="no-js">
 <!--<![endif]-->
-
+n
 %s
 
 </html>
@@ -68,7 +87,7 @@ HTML_HEAD = """
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>KRLAB ALBUM</title>
+    <title>KRLAB ALBUM%s</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Free HTML5 Template by FREEHTML5.CO" />
     <meta name="keywords" content="free html5, free template, free bootstrap, html5, css3, mobile first, responsive" />
@@ -131,7 +150,13 @@ HTML_BODY = """
 
     <div id="fh5co-offcanvass">
         <a href="#" class="fh5co-offcanvass-close js-fh5co-offcanvass-close">Menu <i class="icon-cross"></i> </a>
-        <h1 class="fh5co-logo"><a class="navbar-brand" href="index.html">KRLAB</a></h1>
+
+        <h1 class="fh5co-logo"><a class="navbar-brand" href="index.html">YEAR</a></h1>
+        <ul>
+            %s
+        </ul>
+
+        <h1 class="fh5co-logo"><a class="navbar-brand" href="index.html">LINK</a></h1>
         <ul>
             <li><a href="http://krlab.info.kochi-tech.ac.jp/">Home</a></li>
             <li class="active"><a href="index.html">Album</a></li>
@@ -242,6 +267,14 @@ HTML_ITEM = """
                     </div>
 """
 
+HTML_YEAR_ITEM = """
+            <li><a href="%s.html">%s</a></li>
+"""
+
+HTML_YEAR_ITEM_ACTIVE = """
+            <li class="active"><a href="%s.html">%s</a></li>
+"""
+
 
 HTML_360VIEWER = """
                                 <a href="%s/%s" class="icon-eye "></a>
@@ -261,5 +294,22 @@ HTML_360VIEWER_PAGE = """
 <a-sky src="%s/%s" rotation="0 0 0"></a-sky>
 </a-scene>
 </body>
+</html>
+"""
+
+
+HTML_INDEX_PAGE = """
+<html>
+
+<head>
+    <meta http-equiv="Refresh" content="0;url=%s.html">
+</head>
+
+<body>
+    <p>
+        <a href="%s.html">%s.html</a>
+    </p>
+</body>
+
 </html>
 """

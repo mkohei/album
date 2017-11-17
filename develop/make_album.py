@@ -95,23 +95,26 @@ def main():
         # EXIF情報の読込(model, datetime)
         exif = get_exif(IMG_DIR + "/" + file)
         models = np.append(models, exif[EXIF_MODEL])
-        datetimes = np.append(datetimes, datetime.strptime(exif[EXIF_DATETIME], '%Y:%m:%d %H:%M:%S'))
+        datetimes = np.append(datetimes, datetime.strptime(exif[EXIF_DATETIME][:19], '%Y:%m:%d %H:%M:%S'))
 
     # 撮影時刻によるソート(降順)
     x = np.argsort(datetimes)[::-1]
     models, datetimes, files = models[x], datetimes[x], np.array(files)[x]
 
     ### HTMLコード生成
-    blocks, items, dt_prev, cnt = "", "", None, 0
+    cnt, index = 0, True
     for file, dt, model in zip(files, datetimes, models):
-        dt_str = dt.strftime('%Y / %m / %d')
+        date = dt.strftime('%Y / %m / %d')
+        year = get_year(dt)
+
+        # index.html
+        if index:
+            index = not index
+            make_idnex_page(year, path)
+
         img_id = get_id(dt, cnt)
         cnt += 1
-        # 日付ブロック分け
-        if dt_prev != dt_str:
-            html.add_block(dt_str)
-            cnt = 0
-        dt_prev = dt_str
+
         # 360view
         view360_dir = None
         if is_360img(model):
@@ -119,13 +122,14 @@ def main():
             if file  not in vfiles:
                 make_360viewer_page(img_id, "../"+IMG_DIR, VIEWER360_DIR, file)
         # add item
-        html.add_item(THUMB_DIR, RSZ_DIR, IMG_DIR, view360_dir, file, img_id)
-    html_code = html.get()
+        html.add_item(year, date, THUMB_DIR, RSZ_DIR, IMG_DIR, view360_dir, file, img_id)
+    htmls = html.get()
 
     ### ファイル作成 & 書き込み
-    fd = open('index.html', 'w')
-    fd.write(html_code)
-    fd.close()
+    for year, html_code in htmls.items():
+        fd = open(year + ".html", 'w')
+        fd.write(html_code)
+        fd.close()
 
     ### tempファイルのコピー(css, js, etc...)
     cp_temp(path)
@@ -266,6 +270,24 @@ def make_360viewer_page(title, indir, outdir, file):
     fd.close()
 
 
+# make index page
+def make_idnex_page(title, outdir):
+    """ index.html 作成
+
+        Parameters
+        ----------
+        * title : page title (redilect file name)
+        * outdir : page出力先ディレクトリ
+
+        Returns
+        -------
+        * void
+    """
+    fd = open(outdir + "/index.html", 'w')
+    fd.write(html.HTML_INDEX_PAGE % (title, title, title))
+    fd.close()
+
+
 # id
 def get_id(datetime, cnt):
     return datetime.strftime('%Y%m%d') + '%03d' % cnt
@@ -281,6 +303,10 @@ def cp_temp(_todir):
         _to = _todir + d
         if not os.path.exists(_to):
             shutil.copytree(_from, _to)
+
+
+def get_year(dt):
+    return str(dt.year)
 
 
 
