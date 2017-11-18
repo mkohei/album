@@ -306,6 +306,8 @@ def cp_temp(_todir):
 
 
 def get_year(dt):
+    if dt.month < 4:
+        return str(dt.year - 1)
     return str(dt.year)
 
 

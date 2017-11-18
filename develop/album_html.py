@@ -77,7 +77,7 @@ HTML = """
 <!--[if gt IE 8]><!-->
 <html class="no-js">
 <!--<![endif]-->
-n
+
 %s
 
 </html>
