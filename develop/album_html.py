@@ -40,7 +40,7 @@ def add_item(year, date, thumb_dir, view_dir, download_dir, view360_dir, file, i
     add_block(year, date)
     a = ""
     if view360_dir is not None:
-        a = HTML_360VIEWER % (view360_dir, file)
+        a = HTML_360VIEWER % (view360_dir, img_id + ".html")
     year_list[year][date] += HTML_ITEM % (view_dir, file, thumb_dir, file, download_dir, file, img_id, a)
 
 def get():
