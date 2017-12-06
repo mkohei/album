@@ -60,7 +60,7 @@ THUMB_DIR = 'images_thumb'
 # 360viewerページ出力先ディレクトリ名
 VIEWER360_DIR = 'viewer360'
 # 設定ファイル名
-SETTING = ".setting.json"
+SETTING = "setting.json"
 # EXIFデータID
 EXIF_MODEL = 272
 EXIF_ORIENTATION = 274
@@ -265,8 +265,11 @@ def get_data_dicts(path, addings):
         data['H'] = dt.hour
         data['M'] = dt.minute
         data['S'] = dt.second
+        # model
+        model = del_tail_space(exif[EXIF_MODEL])
+        data['model'] = model
         # is 360v
-        data['is360v'] = int(is_360v(exif[EXIF_MODEL]))
+        data['is360v'] = int(is_360v(model))
         # append
         data_dicts.append(data)
     return data_dicts
@@ -312,6 +315,12 @@ def svae_setting(path, set_json):
     f = open(path + "/" + SETTING, 'w')
     json.dump(set_json, f)
     f.close()
+
+
+def del_tail_space(s):
+    while s[-1] == ' ':
+        s = s[:-1]
+    return s
 
 
 

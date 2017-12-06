@@ -1,0 +1,38 @@
+.album_table {
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.album_table td,
+th {
+    padding: 10px 20px;
+    text-align: center;
+}
+
+.album_table tr:nth-child(even) {
+    background: #f0f0f0;
+}
+
+.album_table th {
+    background: #eeeeff;
+}
+
+.model {
+    text-overflow: ellipsis;
+}
+
+button.reset_button {
+    color: #FFFFFF;
+    background-color: #4444FF;
+    font-size: medium;
+    padding: 15px 40px;
+    margin-right: 20px;
+}
+
+button.save_button {
+    color: #FFFFFF;
+    background-color: #FF4444;
+    font-size: medium;
+    padding: 15px 40px;
+    margin-left: 20px;
+}
